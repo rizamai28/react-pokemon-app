@@ -6,8 +6,8 @@ import Card from "./components/Card";
 
 function App() {
   const POKEMON_BASE_URL = "https://pokeapi.co/api/v2/pokemon?limit=21";
-  const [isdark, setIsdark] = useState(
-    JSON.parse(localStorage.getItem("isdark") ?? "false")
+  const [isLight, setIsLight] = useState(
+    JSON.parse(localStorage.getItem("isLight") ?? "false")
   );
   const [isLoading, setIsLoading] = useState(true);
   const [allPokemons, setAllPokemons] = useState<AllPokemons>();
@@ -34,8 +34,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("isdark", JSON.stringify(isdark));
-  }, [isdark]);
+    localStorage.setItem("isLight", JSON.stringify(isLight));
+    const theme = isLight ? "night" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [isLight]);
 
   console.log("全部のポケモン", allPokemons);
   console.log(pokemons);
@@ -67,46 +69,72 @@ function App() {
     setIsLoading(false);
   };
 
+  const onChangeThemeHandler = () => {
+    setIsLight(!isLight);
+    const theme = isLight ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+  };
+
   return (
     <>
-      <div data-theme={isdark ? "night" : "light"}>
-        {isLoading ? (
-          <h1 className="text-red-300 font-bold text-5xl text-center p-10">
-            ローディング中...
-          </h1>
-        ) : (
-          <div>
-            <div className="flex items-center justify-center pt-10">
-              <h1 className="text-center font-bold text-4xl">ポケモン図鑑</h1>
+      {isLoading ? (
+        <h1 className="text-red-300 font-bold text-5xl text-center p-10">
+          ローディング中...
+        </h1>
+      ) : (
+        <div>
+          <div className="flex items-center justify-center pt-10">
+            <h1 className="text-center font-bold text-4xl">ポケモン図鑑</h1>
+            <label className="flex items-center cursor-pointer gap-2 ml-8">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="5" />
+                <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+              </svg>
               <input
                 type="checkbox"
-                className="toggle theme-controller ml-8"
-                onChange={() => {
-                  setIsdark(!isdark);
-                }}
+                checked={isLight}
+                className="toggle theme-controller"
+                onChange={onChangeThemeHandler}
               />
-            </div>
-            <div className="p-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {pokemons?.map((pokemon) => (
-                <Card key={pokemon.id} pokemon={pokemon} />
-              ))}
-            </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </label>
           </div>
-        )}
-        <div className="flex justify-center p-10 pb-20 gap-5">
-          <button
-            className="btn btn-info text-white w-20"
-            onClick={onClickPrev}
-          >
-            戻る
-          </button>
-          <button
-            className="btn btn-info text-white w-20"
-            onClick={onClickNext}
-          >
-            つぎへ
-          </button>
+          <div className="p-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {pokemons?.map((pokemon) => (
+              <Card key={pokemon.id} pokemon={pokemon} />
+            ))}
+          </div>
         </div>
+      )}
+      <div className="flex justify-center p-10 pb-20 gap-5">
+        <button className="btn btn-info text-white w-20" onClick={onClickPrev}>
+          戻る
+        </button>
+        <button className="btn btn-info text-white w-20" onClick={onClickNext}>
+          つぎへ
+        </button>
       </div>
     </>
   );
